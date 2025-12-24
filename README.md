@@ -34,8 +34,12 @@ pip install -r requirements.txt
 ```
 
 3. Configure API tokens:
-   - Copy `config.example.py` to `config.py`
-   - Add your Reverb API tokens (or update the STORES dictionary in each script)
+   - Copy `.env.example` to `.env`
+   - Add your Reverb API tokens to the `.env` file
+   ```bash
+   cp .env.example .env
+   # Then edit .env and add your actual API tokens
+   ```
 
 ## 📋 Scripts Overview
 
@@ -176,23 +180,29 @@ python "Test Reverb API.py"
 
 ### Store API Tokens
 
-Each script contains a `STORES` dictionary with API tokens:
+API tokens are stored in a `.env` file (not committed to git for security).
 
-```python
-STORES = {
-    'TSS': 'your_api_token_here',
-    'GGL': 'your_api_token_here',
-    'MMS': 'your_api_token_here',
-    'MZM': 'your_api_token_here',
-    'GG': 'your_api_token_here',
-    'AMH': 'your_api_token_here'
-}
-```
+1. **Copy the example file:**
+   ```bash
+   cp .env.example .env
+   ```
 
-**⚠️ Security Note**: API tokens are currently hardcoded in scripts. For production, consider:
-- Using environment variables
-- Using a separate config file (not committed to git)
-- Using a secrets management service
+2. **Edit `.env` and add your API tokens:**
+   ```env
+   TSS_API_TOKEN=your_actual_token_here
+   GGL_API_TOKEN=your_actual_token_here
+   MMS_API_TOKEN=your_actual_token_here
+   MZM_API_TOKEN=your_actual_token_here
+   GG_API_TOKEN=your_actual_token_here
+   AMH_API_TOKEN=your_actual_token_here
+   ```
+
+3. **All scripts automatically load tokens from `.env` file**
+
+**✅ Security**: 
+- `.env` file is in `.gitignore` (never committed to git)
+- `.env.example` is a template (safe to commit)
+- Tokens are loaded via `python-dotenv` library
 
 ## 📁 Project Structure
 
@@ -205,7 +215,8 @@ reverb-inventory-processor/
 ├── Reverb Updater.py                   # Single store updater
 ├── Test Reverb API.py                  # API testing
 ├── requirements.txt                    # Python dependencies
-├── config.example.py                   # Config template
+├── .env.example                        # Environment variables template
+├── .env                                # Your API tokens (not in git)
 ├── README.md                           # This file
 ├── .gitignore                          # Git ignore rules
 ├── Input Files/                        # Input data (not in git)
@@ -229,10 +240,11 @@ reverb-inventory-processor/
 
 ## 🔒 Security
 
-- API tokens are stored in scripts (consider moving to environment variables)
-- `config.py` is in `.gitignore` (won't be committed)
-- Data files are excluded from git
-- Output files are excluded from git
+- ✅ API tokens are stored in `.env` file (not committed to git)
+- ✅ `.env` is in `.gitignore` (never committed)
+- ✅ `.env.example` is a template (safe to commit)
+- ✅ Data files are excluded from git
+- ✅ Output files are excluded from git
 
 ## 📝 Dependencies
 
@@ -240,6 +252,7 @@ See `requirements.txt` for full list:
 - pandas >= 2.0.0
 - openpyxl >= 3.1.0
 - requests >= 2.31.0
+- python-dotenv >= 1.0.0 (for .env file support)
 - xlsxwriter (for formatting)
 
 ## 🐛 Troubleshooting

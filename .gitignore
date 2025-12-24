@@ -62,4 +62,5 @@ Output File/
 config.ini
 config.py
 secrets.json
+.env
 

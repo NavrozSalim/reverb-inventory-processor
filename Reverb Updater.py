@@ -8,22 +8,35 @@ import requests
 import logging
 import sys
 import time
+import os
 from typing import Optional, Dict, Any
 from datetime import datetime
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 # Configuration
 EXCEL_FILE_PATH = r'C:\Users\Navroz\OneDrive\Desktop\Reverb Work\TSS\StoreDB\StoreDB RAW.xlsx'
 REVERB_API_BASE_URL = 'https://api.reverb.com/api'
 
 # Store configurations: {Store Name: API Token}
+# Load from environment variables (.env file)
 STORES = {
-    'TSS': 'e8a002618b3025827e25510da202fb6567ca86dad1b2221ba42596460418e9f9',
-    'GGL': '7bddeec2d92f81371d5842f044fd520d8a0d091b1edc19174d0463693dec90e9',
-    'MMS': 'f6fc5ff306fe6440b71d9f0336cbb1dd3a964b330e0569f9699adbec2262711c',
-    'MZM': 'e51c6294ec9f81ee489adfe473a5a89f5e02051d3e997dff632f75e8694e5ebb',
-    'GG': 'bc5ea36c7a5638a41b84c69f3055ad210f84f41b8116b6498b568f9676d9ead7',
-    'AMH': '09b64f54b4e9eb8235b276900eddc24b657b2a235c661d2110b785caaabb6b88'
+    'TSS': os.getenv('TSS_API_TOKEN', ''),
+    'GGL': os.getenv('GGL_API_TOKEN', ''),
+    'MMS': os.getenv('MMS_API_TOKEN', ''),
+    'MZM': os.getenv('MZM_API_TOKEN', ''),
+    'GG': os.getenv('GG_API_TOKEN', ''),
+    'AMH': os.getenv('AMH_API_TOKEN', '')
 }
+
+# Validate that all tokens are loaded
+missing_tokens = [store for store, token in STORES.items() if not token]
+if missing_tokens:
+    print(f"⚠️  WARNING: Missing API tokens for stores: {', '.join(missing_tokens)}")
+    print("   Please ensure .env file exists and contains all required tokens.")
+    print("   See .env.example for the required format.")
 
 # Rate Limiting Configuration
 # 50 products per 2 minutes = 50 products per 120 seconds

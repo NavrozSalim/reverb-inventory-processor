@@ -1,215 +1,297 @@
-# Reverb Data Scraper
+# Reverb Inventory Management Suite
 
-A Python script that processes inventory data from multiple stores, extracts ASINs from SKUs, and generates formatted output files with product links.
+A comprehensive Python toolkit for managing Reverb inventory across multiple stores. Includes ASIN extraction, price variance tracking, and automated inventory/price updates.
 
-## Features
+## 📦 Project Overview
 
-- **Multi-Store Processing**: Processes data from multiple stores (MMS, MZM, TSS, GG, GGL, AMH)
-- **ASIN Extraction**: Automatically extracts ASINs from SKUs using strict pattern matching
-- **Dual Platform Support**: Handles both Amazon (10-character) and eBay (12-digit) ASINs
-- **Link Generation**: Automatically generates product links based on ASIN type
-- **Manual Review**: Sends SKUs that don't match patterns to a separate sheet for manual review
-- **Data Validation**: Validates ASIN format and ensures accuracy
+This repository contains multiple tools for Reverb inventory management:
 
-## ASIN Extraction Logic
+1. **Reverb Data Scraper** - Extracts ASINs from SKUs and generates product links
+2. **Price Variance Updater** - Updates prices with variance tracking ($50+ threshold)
+3. **Multi Store Price and Inventory Updater** - Updates both inventory and prices
+4. **Multi Store Inventory Updater** - Updates inventory only
+5. **Reverb Updater** - Single store updater
+6. **Test Reverb API** - API testing utility
 
-The script extracts ASINs from SKUs using strict pattern matching:
-
-### Amazon ASIN (10 characters)
-- **Pattern**: `STOREPREFIX-<10CHARCODE>-New` or `STOREPREFIX-<10CHARCODE>-N`
-- **Requirements**: 
-  - Exactly 10 alphanumeric characters
-  - Must contain at least one letter
-- **Extraction**: Split into two 5-character halves and swap positions
-
-**Examples:**
-- `MZM-4KTCXB0CYZ-New` → `B0CYZ4KTCX`
-- `MZM-7TBHSB0DJ8-N` → `B0DJ87TBHS`
-- `MZM-9866NB098S-New` → `B098S9866N`
-
-### eBay ASIN (12 digits)
-- **Pattern**: `STOREPREFIX-<12DIGITS>-New` or `STOREPREFIX-<12DIGITS>-N`
-- **Requirements**: 
-  - Exactly 12 numeric digits
-- **Extraction**: Split into two 6-digit halves and swap positions
-
-**Examples:**
-- `MZM-853596316522-New` → `316522853596`
-- `MMS-197190135509-New` → `135509197190`
-
-### Manual Review
-SKUs that don't match the strict patterns are sent to the "Manual Review" sheet for manual ASIN entry.
-
-## Installation
+## 🚀 Quick Start
 
 ### Prerequisites
 - Python 3.7 or higher
 - pip (Python package manager)
+- Reverb API tokens for your stores
 
-### Setup
+### Installation
 
 1. Clone the repository:
 ```bash
-git clone <repository-url>
-cd "Reverb Work"
+git clone https://github.com/NavrozSalim/reverb-inventory-processor.git
+cd reverb-inventory-processor
 ```
 
-2. Install required packages:
+2. Install dependencies:
 ```bash
 pip install -r requirements.txt
 ```
 
-## Configuration
+3. Configure API tokens:
+   - Copy `config.example.py` to `config.py`
+   - Add your Reverb API tokens (or update the STORES dictionary in each script)
 
-Edit the configuration section in `Reverb Data Scraper.py`:
+## 📋 Scripts Overview
 
-```python
-# Input directory containing store files
-INPUT_DIR = r"C:\Users\Navroz\OneDrive\Desktop\Reverb Work\Input Files"
+### 1. Reverb Data Scraper
 
-# Output directory for generated files
-OUTPUT_DIR = r"C:\Users\Navroz\OneDrive\Desktop\Reverb Work\Output File"
+**File**: `Reverb Data Scraper.py`
 
-# Stores to process (in order)
-STORE_FILES = ["MMS", "MZM", "TSS", "GG", "GGL", "AMH"]
-```
+Extracts ASINs from SKUs and generates formatted Excel output with product links.
 
-## Input File Format
+#### Features
+- Multi-store processing (MMS, MZM, TSS, GG, GGL, AMH)
+- Automatic ASIN extraction from SKU patterns
+- Amazon (10-char) and eBay (12-digit) ASIN support
+- Automatic link generation
+- Manual review sheet for unmatched SKUs
 
-Place your store data files in the `Input Files` directory with the following naming:
-- `MMS.csv` or `MMS.xlsx`
-- `MZM.csv` or `MZM.xlsx`
-- `TSS.csv` or `TSS.xlsx`
-- etc.
+#### ASIN Extraction Logic
 
-### Required Columns
-- **SKU**: Product SKU identifier
-- **ASIN**: (Optional) Existing ASIN value (will be extracted from SKU if not provided)
+**Amazon ASIN (10 characters):**
+- Pattern: `STOREPREFIX-<10CHARCODE>-New` or `STOREPREFIX-<10CHARCODE>-N`
+- Example: `MZM-4KTCXB0CYZ-New` → `B0CYZ4KTCX`
+- Logic: Split into two 5-char halves, swap positions
 
-### Supported Formats
-- CSV (`.csv`)
-- Excel (`.xlsx`, `.xls`)
+**eBay ASIN (12 digits):**
+- Pattern: `STOREPREFIX-<12DIGITS>-New` or `STOREPREFIX-<12DIGITS>-N`
+- Example: `MZM-853596316522-New` → `316522853596`
+- Logic: Split into two 6-digit halves, swap positions
 
-## Usage
-
-Run the script:
-
+#### Usage
 ```bash
 python "Reverb Data Scraper.py"
 ```
 
-### Output
+**Input**: CSV/Excel files in `Input Files/` directory
+**Output**: `Output File/Reverb Data Scrape YYYY-MM-DD.xlsx`
 
-The script generates an Excel file with today's date:
-- **Filename**: `Reverb Data Scrape YYYY-MM-DD.xlsx`
-- **Location**: `Output File` directory
+---
 
-### Output Sheets
+### 2. Price Variance Updater
 
-#### 1. Data Sheet
-Contains successfully processed SKUs with:
-- **STORE NAME**: Store identifier
-- **SKU**: Original SKU
-- **ASIN**: Extracted ASIN
-- **LEN**: ASIN length (10 or 12)
-- **LINKS**: Generated product link (Amazon or eBay)
-- **STOCK**: (Empty - for manual entry)
-- **POSTED PRICE**: (Empty - for manual entry)
+**File**: `Price Variance Updater.py`
 
-#### 2. Manual Review Sheet
-Contains SKUs that couldn't be automatically processed:
-- **STORE NAME**: Store identifier
-- **SKU**: Original SKU
-- **MANUAL ASIN**: (Empty - for manual entry)
+Updates inventory and prices on Reverb with variance tracking. SKUs with price differences ≥ $50 are updated AND added to a review file.
 
-## Output Example
+#### Features
+- Combined inventory + price updates (single API call)
+- Price variance tracking ($50 threshold)
+- FAST_MODE for faster processing
+- Real-time data saving (saves after each store)
+- Rate limiting protection
 
-```
-Processing MZM...
-  Valid: 2311 rows, Needs Manual Review: 9 rows
-  Verification:
-    ✓ Extracted from SKU: 2311
-    ✗ Sent to Manual Review: 9
+#### Price Update Logic
+- **Posted Price = 0**: Skip price update
+- **Difference ≥ $50**: Update price AND add to review file
+- **Difference < $50**: Update price normally
+
+#### Configuration
+```python
+FAST_MODE = True  # Skip validation for speed
+DELAY_PER_PRODUCT = 1.5  # Seconds between API calls
+PRICE_VARIANCE_THRESHOLD = 50.0  # Dollar threshold
 ```
 
-## Link Generation
-
-The script automatically generates product links based on ASIN type:
-
-- **Amazon ASIN (10 chars)**: `https://www.amazon.com/dp/{ASIN}`
-- **eBay ASIN (12 digits)**: `https://www.ebay.com/itm/{ASIN}`
-
-## Validation Rules
-
-### Amazon ASIN Validation
-- Must be exactly 10 characters
-- Must contain at least one alphabet letter
-- Can contain numbers and letters
-
-### eBay ASIN Validation
-- Must be exactly 12 characters
-- Must contain only numeric digits
-
-## Error Handling
-
-- **Missing Files**: Script skips stores if input files are not found
-- **Invalid SKUs**: SKUs that don't match patterns are sent to manual review
-- **Invalid ASINs**: Extracted ASINs that don't pass validation are sent to manual review
-- **Data Preservation**: All columns are read as strings to preserve formatting
-
-## Troubleshooting
-
-### Issue: ASINs showing as scientific notation
-**Solution**: The script reads all data as strings to prevent this. Ensure input files are properly formatted.
-
-### Issue: SKUs not being extracted
-**Solution**: Verify SKU format matches the strict patterns:
-- Must end with `-New` or `-N`
-- Must have exactly 10 or 12 characters in the middle code
-- For Amazon: code must contain at least one letter
-
-### Issue: File not found errors
-**Solution**: 
-- Ensure input files are in the `Input Files` directory
-- Check file naming matches store names exactly (case-sensitive)
-- Verify file extensions are `.csv`, `.xlsx`, or `.xls`
-
-## Project Structure
-
-```
-Reverb Work/
-├── Reverb Data Scraper.py    # Main script
-├── requirements.txt            # Python dependencies
-├── README.md                  # This file
-├── Input Files/               # Input data files
-│   ├── MMS.csv
-│   ├── MZM.csv
-│   └── ...
-└── Output File/               # Generated output files
-    └── Reverb Data Scrape YYYY-MM-DD.xlsx
+#### Usage
+```bash
+python "Price Variance Updater.py"
 ```
 
-## Dependencies
+**Input**: `StoreDB inventory and Price Update.xlsx`
+**Output**: 
+- Updates on Reverb
+- `Price vary Sku update Folder/Price Variance Review YYYY-MM-DD.xlsx`
 
-- **pandas**: Data manipulation and Excel file handling
-- **openpyxl**: Excel file reading/writing
-- **xlsxwriter**: Excel formatting and styling
+---
 
-See `requirements.txt` for specific versions.
+### 3. Multi Store Price and Inventory Updater
 
-## License
+**File**: `Multi Store Price and Inventory Updater.py`
+
+Updates both inventory and prices for multiple stores. Only updates price if Posted Price > Reverb Price.
+
+#### Features
+- Multi-store batch processing
+- Inventory validation
+- Conditional price updates
+- Rate limiting
+- Detailed logging
+
+#### Usage
+```bash
+python "Multi Store Price and Inventory Updater.py"
+```
+
+**Input**: `StoreDB inventory and Price Update.xlsx`
+
+---
+
+### 4. Multi Store Inventory Updater
+
+**File**: `Multi Store Inventory Updater.py`
+
+Updates inventory only (no price updates) for multiple stores.
+
+#### Usage
+```bash
+python "Multi Store Inventory Updater.py"
+```
+
+**Input**: `StoreDB inventory Update.xlsx`
+
+---
+
+### 5. Reverb Updater
+
+**File**: `Reverb Updater.py`
+
+Single-store updater with interactive store selection.
+
+#### Usage
+```bash
+python "Reverb Updater.py"
+```
+
+---
+
+### 6. Test Reverb API
+
+**File**: `Test Reverb API.py`
+
+Utility script for testing Reverb API connectivity and authentication.
+
+#### Usage
+```bash
+python "Test Reverb API.py"
+```
+
+## ⚙️ Configuration
+
+### Store API Tokens
+
+Each script contains a `STORES` dictionary with API tokens:
+
+```python
+STORES = {
+    'TSS': 'your_api_token_here',
+    'GGL': 'your_api_token_here',
+    'MMS': 'your_api_token_here',
+    'MZM': 'your_api_token_here',
+    'GG': 'your_api_token_here',
+    'AMH': 'your_api_token_here'
+}
+```
+
+**⚠️ Security Note**: API tokens are currently hardcoded in scripts. For production, consider:
+- Using environment variables
+- Using a separate config file (not committed to git)
+- Using a secrets management service
+
+## 📁 Project Structure
+
+```
+reverb-inventory-processor/
+├── Reverb Data Scraper.py              # ASIN extraction tool
+├── Price Variance Updater.py           # Price variance tracking
+├── Multi Store Price and Inventory Updater.py
+├── Multi Store Inventory Updater.py
+├── Reverb Updater.py                   # Single store updater
+├── Test Reverb API.py                  # API testing
+├── requirements.txt                    # Python dependencies
+├── config.example.py                   # Config template
+├── README.md                           # This file
+├── .gitignore                          # Git ignore rules
+├── Input Files/                        # Input data (not in git)
+└── Output File/                        # Generated files (not in git)
+```
+
+## 📊 Input File Formats
+
+### Reverb Data Scraper
+- **Required**: `SKU` column
+- **Optional**: `ASIN` column
+- **Format**: CSV or Excel (.xlsx, .xls)
+- **Location**: `Input Files/` directory
+- **Naming**: `MMS.csv`, `MZM.csv`, etc.
+
+### Price/Inventory Updaters
+- **Required**: `STORES NAME`, `SKU`, `STOCK` columns
+- **Optional**: `POSTED PRICE` column
+- **Format**: Excel (.xlsx)
+- **File**: `StoreDB inventory and Price Update.xlsx`
+
+## 🔒 Security
+
+- API tokens are stored in scripts (consider moving to environment variables)
+- `config.py` is in `.gitignore` (won't be committed)
+- Data files are excluded from git
+- Output files are excluded from git
+
+## 📝 Dependencies
+
+See `requirements.txt` for full list:
+- pandas >= 2.0.0
+- openpyxl >= 3.1.0
+- requests >= 2.31.0
+- xlsxwriter (for formatting)
+
+## 🐛 Troubleshooting
+
+### ASIN Extraction Issues
+- Verify SKU format matches strict patterns
+- Check SKU ends with `-New` or `-N`
+- Ensure code is exactly 10 or 12 characters
+
+### API Errors
+- Verify API tokens are correct
+- Check rate limiting (50 requests per 2 minutes)
+- Review log files for detailed errors
+
+### File Not Found
+- Ensure input files are in correct directories
+- Check file naming matches store names exactly
+- Verify file extensions (.csv, .xlsx, .xls)
+
+## 📈 Performance
+
+### Price Variance Updater
+- **FAST_MODE ON**: ~1.5 seconds per SKU
+- **FAST_MODE OFF**: ~2.5 seconds per SKU
+- **Rate Limit**: 50 products per 2 minutes
+
+### Reverb Data Scraper
+- Processes all stores sequentially
+- No API calls (file processing only)
+- Fast execution (< 1 minute for thousands of rows)
+
+## 📄 License
 
 This project is proprietary software. All rights reserved.
 
-## Author
+## 👤 Author
 
 Developed for Reverb Work inventory management.
 
-## Version History
+## 📅 Version History
 
 - **v1.0.0** (2025-12-23)
   - Initial release
-  - Support for Amazon and eBay ASIN extraction
-  - Multi-store processing
-  - Manual review functionality
+  - Full project suite
+  - Multi-store support
+  - Price variance tracking
+  - ASIN extraction with validation
 
+## 🤝 Contributing
+
+This is a private project. For issues or feature requests, please contact the repository owner.
+
+## 📞 Support
+
+For questions or issues, please open an issue on GitHub or contact the development team.

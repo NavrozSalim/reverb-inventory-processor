@@ -60,5 +60,6 @@ Output File/
 *.key
 *.pem
 config.ini
+config.py
 secrets.json
 
